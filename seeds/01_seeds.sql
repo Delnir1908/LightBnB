@@ -1,7 +1,7 @@
 INSERT INTO users (name, email, password)
 VALUES ('John Smith', 'jsmith@hutmail.com', '$2a$10$FB/BOAVhpuLvpOREQVmvmezD4ED/.JBIDRh70tGevYzYzQgFId2u.'),
 ('Carlos Sanchez', 'csanchez@gemail.com', '$2a$10$FB/BOAVhpuLvpOREQVmvmezD4ED/.JBIDRh70tGevYzYzQgFId2u.'),
-('Signh Manpreet', 'smanpreet@yahu.com'. '$2a$10$FB/BOAVhpuLvpOREQVmvmezD4ED/.JBIDRh70tGevYzYzQgFId2u.');
+('Signh Manpreet', 'smanpreet@yahu.com', '$2a$10$FB/BOAVhpuLvpOREQVmvmezD4ED/.JBIDRh70tGevYzYzQgFId2u.');
 
 INSERT INTO properties (owner_id, title, description, cost_per_night, parking_spaces, number_of_bathrooms, number_of_bedrooms, thumbnail_photo_url, cover_photo_url, country, street, city, province, post_code)
 VALUES (1, 'downtown apartment', 'description1', 30000, 0, 1, 1, 'https://thumb-img.com/001.jpg', 'https://cover-img.com/001.jpg', 'Canada', '5th ave', 'Toronto', 'R7H 1K9'),
