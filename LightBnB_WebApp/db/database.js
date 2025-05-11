@@ -120,7 +120,7 @@ const getAllReservations = function (guest_id, limit = 10) {
     FROM reservations
     JOIN properties ON properties.id = reservations.property_id
     WHERE reservations.guest_id = $1
-    GROUP BY reservations.id, properties.title, cost_per_night, start_date, properties.id
+    GROUP BY properties.id, reservations.id
     ORDER BY start_date
     LIMIT $2;`, [guest_id, limit])
   .then((result) => {
@@ -130,8 +130,6 @@ const getAllReservations = function (guest_id, limit = 10) {
   .catch((err) => {
     console.log(err.message);
   });
-
-
 
 };
 
@@ -145,10 +143,68 @@ const getAllReservations = function (guest_id, limit = 10) {
  */
 
 const getAllProperties = (options, limit = 10) => {
+  //Setup an array to hold any parameters that may be available for the query
+  const queryParams = [];
+  //Setup an array to hold any options qurey string that may be available for the query string
+  const optionsArray = [];
+
+  //Start the query with all information that comes before the WHERE clause
+  let queryString = `
+  SELECT properties.*, AVG(property_reviews.rating) as average_rating
+  FROM properties
+  JOIN property_reviews ON properties.id = property_id
+  `;
+
+  //Check if a city has been passed in as an option. Add the city to the optionsArray and create a clause for the city
+  if (options.city) {
+    queryParams.push(`%${options.city}%`);
+    optionsArray.push(`city LIKE $${queryParams.length}`);
+  }
+  
+  //Check if a owner_id has been passed in as an option. Add the owner_id to the optionsArray and create a clause for the owner_id
+  if (options.owner_id) {
+    queryParams.push(`%${options.owner_id}%`);
+    optionsArray.push(`owner_id = $${queryParams.length}`);
+  }
+  
+  //Check if a minimum_price_per_night has been passed in as an option. Add the minimum_price_per_night to the optionsArray and create a clause for the minimum_price_per_night
+  if (options.minimum_price_per_night) {
+    queryParams.push(`%${options.minimum_price_per_night}%`);
+    //cost_per_night is divided by 100 to convert cents to dollars
+    optionsArray.push(`(cost_per_night / 100) >= $${queryParams.length} `);
+  }
+  
+  //Check if a maximum_price_per_night has been passed in as an option. Add the maximum_price_per_night to the optionsArray and create a clause for the maximum_price_per_night
+  if (options.maximum_price_per_night) {
+    queryParams.push(`%${options.maximum_price_per_night}%`);
+    //cost_per_night is divided by 100 to convert cents to dollars
+    optionsArray.push(`(cost_per_night / 100) <= $${queryParams.length} `);
+  }
+  
+  //Check if a minimum_rating has been passed in as an option. Add the minimum_rating to the optionsArray and create a clause for the minimum_rating
+  if (options.minimum_rating) {
+    queryParams.push(`%${options.minimum_rating}%`);
+    optionsArray.push(`AVG(property_reviews.rating) >= $${queryParams.length}`);
+  }
+
+  //add all options to queryString with 'WHERE' and join with ' AND '
+  if (optionsArray.length > 0) {
+    queryString += " WHERE " + optionsArray.join(" AND ");
+  }
+
+  //add LIMIT as the last query item
+  queryParams.push(limit);
+  queryString += `
+  GROUP BY properties.id
+  ORDER BY cost_per_night
+  LIMIT $${queryParams.length};
+  `;
+
+  // test out parameters
+  console.log(queryString, queryParams);
 
   return pool
-    .query(
-      `SELECT * FROM properties LIMIT $1`, [limit])
+    .query(queryString, queryParams)
     .then((result) => {
       console.log(result.rows);
       return result.rows;
@@ -156,6 +212,7 @@ const getAllProperties = (options, limit = 10) => {
     .catch((err) => {
       console.log(err.message);
     });
+
 };
 
 /**
