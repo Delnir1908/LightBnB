@@ -169,36 +169,37 @@ const getAllProperties = (options, limit = 10) => {
   
   //Check if a minimum_price_per_night has been passed in as an option. Add the minimum_price_per_night to the optionsArray and create a clause for the minimum_price_per_night
   if (options.minimum_price_per_night) {
-    queryParams.push(options.minimum_price_per_night);
-    //cost_per_night is divided by 100 to convert cents to dollars
-    optionsArray.push(`(cost_per_night / 100) >= $${queryParams.length} `);
+    queryParams.push(options.minimum_price_per_night * 100);
+    //minimum_price_per_night is multiplied by 100 to convert dollars to cents
+    optionsArray.push(`cost_per_night >= $${queryParams.length} `);
   }
   
   //Check if a maximum_price_per_night has been passed in as an option. Add the maximum_price_per_night to the optionsArray and create a clause for the maximum_price_per_night
   if (options.maximum_price_per_night) {
-    queryParams.push(options.maximum_price_per_night);
-    //cost_per_night is divided by 100 to convert cents to dollars
-    optionsArray.push(`(cost_per_night / 100) <= $${queryParams.length} `);
+    //maximum_price_per_night is multiplied by 100 to convert dollars to cents
+    queryParams.push(options.maximum_price_per_night * 100);
+    optionsArray.push(`cost_per_night <= $${queryParams.length} `);
   }
   
   //add all options to queryString with 'WHERE' and join with ' AND '
   if (optionsArray.length > 0) {
     queryString += " WHERE " + optionsArray.join(" AND ");
-    queryString += `
-    GROUP BY properties.id
-    ORDER BY cost_per_night
-    `
   }
   
+  queryString += ` GROUP BY properties.id`
+
   //Check if a minimum_rating has been passed in as an option. Add the minimum_rating to the optionsArray and create a clause for the minimum_rating
   if (options.minimum_rating) {
     queryParams.push(options.minimum_rating);
-    queryString += (`HAVING AVG(property_reviews.rating) >= $${queryParams.length}`);
+    queryString += (` HAVING AVG(property_reviews.rating) >= $${queryParams.length}`);
   }
   
   //add LIMIT as the last query item
   queryParams.push(limit);
-  queryString += `LIMIT $${queryParams.length};`;
+  queryString += `
+     ORDER BY cost_per_night
+     LIMIT $${queryParams.length};
+    `;
 
   // test out parameters
   console.log(queryString, queryParams);
