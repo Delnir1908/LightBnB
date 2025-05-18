@@ -45,12 +45,18 @@ LightBnB is a simple multi-page Airbnb clone utilizing Node.js and PostgreSQL. L
 
 ## Project Structure
 ```
-/db
-database.js
-/migrations
-/routes
-app.js
-README.md
+├── 1_queries/ # Sample SQL queries
+├── LightBnB_WebApp/ # Main application source code
+│ ├── db/ # Database interaction code and sample data
+│ ├── public/ # HTML, CSS, and client-side JavaScript
+│ ├── routes/ # Express route handlers
+│ ├── styles/ # Sass stylesheets
+│ ├── server.js # Main server file
+│ ├── package.json # App dependencies
+│ └── README.md # App documentation
+├── migrations/ # Database schema and migration files
+├── seeds/ # Database seed data
+├── README.md # Project documentation (this file)
 ```
 
 ## Credits
