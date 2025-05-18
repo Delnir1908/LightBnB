@@ -2,6 +2,7 @@ const properties = require("./json/properties.json");
 const users = require("./json/users.json");
 const { Pool } = require("pg");
 
+//creates a connection pool to a PostgreSQL database using the pg library
 const pool = new Pool({
   user: "jasonchen",
   password: "development",
@@ -21,22 +22,14 @@ const pool = new Pool({
  * @return {Promise<{}>} A promise to the user.
 */
 const getUserWithEmail = function (email) {
-  /*
-  let resolvedUser = null;
-  for (const userId in users) {
-    const user = users[userId];
-    if (user && user.email.toLowerCase() === email.toLowerCase()) {
-      resolvedUser = user;
-      }
-      }
-      return Promise.resolve(resolvedUser);
-      */
-     
+  
+  //the function itself returns a Promise, byreturning the whole chain
+  //allowing other parts of code to handle result or error
   return pool
   .query(
     `SELECT * FROM users WHERE email =  $1`, [email.toLowerCase()])
     .then((result) => {
-      //if not user found, the result rows array should have no element, hence .length should === 0
+      //if no user found, the result rows array should have no element, hence .length should === 0
       if (result.rows.length === 0) {
         return null;
       }
@@ -63,7 +56,7 @@ const getUserWithId = function (id) {
   .query(
     `SELECT * FROM users WHERE id =  $1`, [id])
     .then((result) => {
-      //if not user found, the result rows array should have no element, hence .length should === 0
+      //if no user found, the result rows array should have no element, hence .length should === 0
       if (result.rows.length === 0) {
         return null;
       }
@@ -82,12 +75,7 @@ const getUserWithId = function (id) {
  * @return {Promise<{}>} A promise to the user.
  */
 const addUser = function (user) {
-  /*
-  const userId = Object.keys(users).length + 1;
-  user.id = userId;
-  users[userId] = user;
-  return Promise.resolve(user);
-  */
+
   return pool
   .query(
     `INSERT INTO users (name, email, password) 
@@ -114,9 +102,7 @@ const addUser = function (user) {
  * @return {Promise<[{}]>} A promise to the reservations.
  */
 const getAllReservations = function (guest_id, limit = 10) {
-  /*
-  return getAllProperties(null, 2);
-  */
+
   return pool
   .query(
     `SELECT reservations.*, properties.*
@@ -236,7 +222,7 @@ const addProperty = function (property) {
   return Promise.resolve(property);
   */
 
-  //set queryString to include all property features to be added
+  //set queryString to include all property components to be added
   const queryString = `
   INSERT INTO properties (
   owner_id, 
